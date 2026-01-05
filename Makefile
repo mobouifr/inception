@@ -26,6 +26,6 @@ clean: down
 	docker volume prune -f
 
 fclean: clean
-	docker volume prune -f
+	docker system prune -a --volumes -f
 	sudo rm -rf /home/mobouifr/data/www/*
 	sudo rm -rf /home/mobouifr/data/mariadb/*

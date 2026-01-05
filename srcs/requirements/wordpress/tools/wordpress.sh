@@ -14,9 +14,16 @@ if [ ! -f /run/secrets/wp_admin_password ]; then
     exit 1
 fi
 
+if [ ! -f /run/secrets/wp_user_password ]; then
+    echo "ERROR: wp_user_password secret not found!"
+    exit 1
+fi
+
 # Read passwords from secret files
 DB_PASSWORD=$(cat /run/secrets/db_password)
 WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
+
 
 echo "Secrets loaded successfully!"
 
@@ -69,8 +76,8 @@ fi
 
 
 if ! wp core is-installed --allow-root; then
-	echo ">>>>>>>>>>>>>>Installing Wordpress..."
-	    wp core install \
+    echo ">>>>>>>>>>>>>>Installing Wordpress..."
+        wp core install \
         --url="${URL}" \
         --title="${TITLE}" \
         --admin_user="${WP_ADMIN_USER}" \
@@ -79,9 +86,24 @@ if ! wp core is-installed --allow-root; then
         --skip-email --allow-root
 
 else
-	echo ">>>>>>>>>>>>>>Wordpress Already Installed!"
+    echo ">>>>>>>>>>>>>>Wordpress Already Installed!"
 fi
 
+
+# ================================================================
+# CREATE ADDITIONAL AUTHOR USER
+# ================================================================
+if [ -n "${WP_USER:-}" ] && [ -n "${WP_USER_EMAIL:-}" ]; then
+    if ! wp user get "${WP_USER}" --field=ID --allow-root >/dev/null 2>&1; then
+        echo "Creating additional WordPress user ${WP_USER} with role ${WP_ROLE:-author}..."
+        wp user create "${WP_USER}" "${WP_USER_EMAIL}" \
+            --role="${WP_ROLE:-author}" \
+            --user_pass="${WP_USER_PASSWORD}" \
+            --allow-root
+    else
+        echo "User ${WP_USER} already exists, skipping creation."
+    fi
+fi
 
 
 # ================================================================
@@ -95,4 +117,4 @@ chmod -R 775 /var/www/html/wp-content/
 chmod 640 /var/www/html/wp-config.php 2>/dev/null || true
 echo "✅ Permissions fixed!"
 
-exec php-fpm83 -F
+exec php-fpm8.2 -F

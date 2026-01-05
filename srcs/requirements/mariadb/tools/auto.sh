@@ -16,15 +16,15 @@ else
     exit 1
 fi
 
+mkdir -p /run/mysqld
+chown -R mysql:mysql /run/mysqld
+chown -R mysql:mysql /var/lib/mysql
 
 
 MARIADB_DAEMON="mysqld_safe"
 
 SOCKET="/run/mysqld/mysqld.sock"
 
-mkdir -p /run/mysqld
-chown -R mysql:mysql /run/mysqld
-chown -R mysql:mysql /var/lib/mysql
 
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo ">>>>>>>>>>>>>>Initializing MySQL data directory..."
@@ -38,7 +38,7 @@ MYSQL_PID=$!
 
 echo ">>>>>>>>>>>>>>Waiting for MariaDB to be ready..."
 
-until mysqladmin --socket=$SOCKET ping --silent >/dev/null 2>&1 \
+until mysqladmin  --socket=$SOCKET ping --silent >/dev/null 2>&1 \
 	|| mysqladmin --socket=$SOCKET -uroot -p"${DB_ROOT_PASSWORD}" ping --silent >/dev/null 2>&1
 do
 	echo ">>>>>>>>>>>>>>Sleeping..."
@@ -52,6 +52,7 @@ if mysqladmin --socket=$SOCKET ping --silent >/dev/null 2>&1; then
 	MARIADB="mariadb -u root -p${DB_ROOT_PASSWORD} --socket=${SOCKET}"
 fi
 
+echo "MARIADB COMMAND: ${MARIADB}"
 echo ">>>>>>>>>>>>>>Create database and its user and alter root"
 ${MARIADB} << EOF
 CREATE DATABASE IF NOT EXISTS ${DB_NAME};

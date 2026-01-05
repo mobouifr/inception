@@ -65,6 +65,7 @@ services:
 networks:
   my-net:
     driver: bridge
+    
 
 secrets:
   db_password:
