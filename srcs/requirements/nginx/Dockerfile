@@ -1,8 +1,9 @@
 FROM debian:bookworm
 
-RUN apt-get update && apt-get install -y nginx && apt-get install openssl
+RUN apt-get update && apt-get install -y nginx && apt-get install -y openssl
 
 ARG COUNTRY STATE LOCALITY ORGANIZATION UNIT COMMON_NAME
+
 RUN mkdir -p /etc/ssl/certs /etc/ssl/private
 
 RUN openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \

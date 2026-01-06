@@ -64,11 +64,11 @@ services:
       - wordpress_data:/var/www/html
     ports:
       - "443:443"
+
 networks:
   my-net:
     driver: bridge
     
-
 secrets:
   db_password:
     file: ../secrets/db_password.txt

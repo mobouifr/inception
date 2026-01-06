@@ -39,7 +39,7 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 fi
 
-# Start a temporary MariaDB instance in the background without network access
+# Start a temporary MariaDB instance in the background without network access(setup mode)
 echo ">>>>>>>>>>>>>>Start MariaDB in background"
 $MARIADB_DAEMON --user=mysql --skip-networking --socket=$SOCKET &
 
